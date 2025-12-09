@@ -211,13 +211,13 @@ func ValidateAmount(amount int) error {
 // ValidateCurrency validates a currency code
 func ValidateCurrency(currency string) error {
 	currency = strings.ToLower(currency)
-	validCurrencies := []string{"jpy"}
+	validCurrencies := []string{"jpy", "usd"}
 	for _, c := range validCurrencies {
 		if currency == c {
 			return nil
 		}
 	}
-	return fmt.Errorf("invalid currency: %s (supported: jpy)", currency)
+	return fmt.Errorf("invalid currency: %s (supported: jpy, usd)", currency)
 }
 
 // ValidateInterval validates a subscription interval
