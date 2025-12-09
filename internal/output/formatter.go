@@ -328,11 +328,6 @@ func formatFieldValueWithName(v reflect.Value, fieldName string) string {
 	}
 }
 
-// formatFieldValue formats a field value for display (legacy, without field name context)
-func formatFieldValue(v reflect.Value) string {
-	return formatFieldValueWithName(v, "")
-}
-
 // toSnakeCase converts a CamelCase string to snake_case
 func toSnakeCase(s string) string {
 	var result strings.Builder
