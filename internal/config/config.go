@@ -227,7 +227,10 @@ func Save() error {
 	if err != nil {
 		return fmt.Errorf("error creating temp config file: %w", err)
 	}
-	f.Close()
+	if err := f.Close(); err != nil {
+		os.Remove(tempFile)
+		return fmt.Errorf("error closing temp config file: %w", err)
+	}
 
 	if err := viper.WriteConfigAs(tempFile); err != nil {
 		os.Remove(tempFile)
