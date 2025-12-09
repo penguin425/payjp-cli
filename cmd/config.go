@@ -135,6 +135,8 @@ Example:
 			} else {
 				mode = "test"
 			}
+		} else if mode != "test" && mode != "live" {
+			return fmt.Errorf("invalid mode: %s (use 'test' or 'live')", mode)
 		}
 
 		profile := config.Profile{

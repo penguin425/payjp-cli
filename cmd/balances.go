@@ -65,6 +65,8 @@ Example:
 			if err != nil {
 				return err
 			}
+			// Note: int conversion is safe for Unix timestamps (valid until year 2038 on 32-bit)
+			// The PAY.JP API expects int values for timestamps
 			params.Since = payjp.Int(int(ts))
 		}
 		if until != "" {

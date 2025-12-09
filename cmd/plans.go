@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/payjp/payjp-cli/internal/client"
 	"github.com/payjp/payjp-cli/internal/util"
 	"github.com/payjp/payjp-go/v1"
@@ -59,6 +61,9 @@ Example:
 			plan.TrialDays = trialDays
 		}
 		if billingDay > 0 {
+			if billingDay > 31 {
+				return fmt.Errorf("billing-day must be between 1 and 31")
+			}
 			plan.BillingDay = billingDay
 		}
 		if metadata != "" {

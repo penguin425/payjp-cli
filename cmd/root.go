@@ -46,6 +46,9 @@ Example:
 For more information, visit: https://pay.jp/docs/api/`,
 	Version: Version,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		// Track if --output flag was explicitly set
+		outputFmtChanged = cmd.Flags().Changed("output")
+
 		// Skip client initialization for config commands
 		if cmd.Parent() != nil && cmd.Parent().Name() == "config" {
 			return nil
@@ -57,6 +60,11 @@ For more information, visit: https://pay.jp/docs/api/`,
 		// Initialize configuration
 		if err := config.Init(cfgFile); err != nil {
 			return fmt.Errorf("failed to initialize config: %w", err)
+		}
+
+		// Set live mode environment variable if --live flag is used
+		if liveMode {
+			os.Setenv("PAYJP_LIVE", "true")
 		}
 
 		// Initialize client with API key override if provided
@@ -96,12 +104,15 @@ func initConfig() {
 	// Configuration is initialized in PersistentPreRunE
 }
 
+// outputFmtChanged tracks if --output flag was explicitly set
+var outputFmtChanged bool
+
 // getOutputFormat returns the output format to use
 func getOutputFormat() string {
 	if quiet {
 		return "quiet"
 	}
-	if outputFmt != "" {
+	if outputFmtChanged {
 		return outputFmt
 	}
 	return config.GetOutputFormat()

@@ -206,7 +206,7 @@ func ListProfiles() []string {
 func Save() error {
 	cfg := Get()
 
-	// Ensure config directory exists
+	// Ensure config directory exists with secure permissions
 	configDir := filepath.Dir(configPath)
 	if err := os.MkdirAll(configDir, 0700); err != nil {
 		return fmt.Errorf("error creating config directory: %w", err)
@@ -218,13 +218,32 @@ func Save() error {
 	viper.Set("profiles", cfg.Profiles)
 	viper.Set("aliases", cfg.Aliases)
 
-	if err := viper.WriteConfigAs(configPath); err != nil {
+	// Write to a temp file first with secure permissions, then rename
+	// This prevents a race condition where the file is readable before chmod
+	tempFile := configPath + ".tmp"
+
+	// Create temp file with secure permissions (0600) from the start
+	f, err := os.OpenFile(tempFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		return fmt.Errorf("error creating temp config file: %w", err)
+	}
+	f.Close()
+
+	if err := viper.WriteConfigAs(tempFile); err != nil {
+		os.Remove(tempFile)
 		return fmt.Errorf("error writing config file: %w", err)
 	}
 
-	// Set file permissions to 600 for security
-	if err := os.Chmod(configPath, 0600); err != nil {
+	// Ensure temp file has correct permissions (viper may have changed them)
+	if err := os.Chmod(tempFile, 0600); err != nil {
+		os.Remove(tempFile)
 		return fmt.Errorf("error setting config file permissions: %w", err)
+	}
+
+	// Atomically rename temp file to final path
+	if err := os.Rename(tempFile, configPath); err != nil {
+		os.Remove(tempFile)
+		return fmt.Errorf("error renaming config file: %w", err)
 	}
 
 	return nil

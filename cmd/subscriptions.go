@@ -33,10 +33,13 @@ Example:
 		metadata, _ := cmd.Flags().GetString("metadata")
 
 		subscription := payjp.Subscription{
-			PlanID:  plan,
-			Prorate: prorate,
+			PlanID: plan,
 		}
 
+		// Only set Prorate if explicitly specified to avoid unintentionally setting it to false
+		if cmd.Flags().Changed("prorate") {
+			subscription.Prorate = prorate
+		}
 		if trialEnd != "" {
 			ts, err := util.ParseTimestamp(trialEnd)
 			if err != nil {
@@ -126,10 +129,12 @@ Example:
 		prorate, _ := cmd.Flags().GetBool("prorate")
 		metadata, _ := cmd.Flags().GetString("metadata")
 
-		subscription := payjp.Subscription{
-			Prorate: prorate,
-		}
+		subscription := payjp.Subscription{}
 
+		// Only set Prorate if explicitly specified to avoid unintentionally setting it to false
+		if cmd.Flags().Changed("prorate") {
+			subscription.Prorate = prorate
+		}
 		if plan != "" {
 			subscription.PlanID = plan
 		}
@@ -189,10 +194,12 @@ Example:
 		trialEnd, _ := cmd.Flags().GetString("trial-end")
 		prorate, _ := cmd.Flags().GetBool("prorate")
 
-		subscription := payjp.Subscription{
-			Prorate: prorate,
-		}
+		subscription := payjp.Subscription{}
 
+		// Only set Prorate if explicitly specified to avoid unintentionally setting it to false
+		if cmd.Flags().Changed("prorate") {
+			subscription.Prorate = prorate
+		}
 		if trialEnd != "" {
 			ts, err := util.ParseTimestamp(trialEnd)
 			if err != nil {

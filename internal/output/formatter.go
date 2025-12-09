@@ -192,7 +192,7 @@ func (f *TableFormatter) formatSingle(v reflect.Value) error {
 		}
 
 		fieldName := getFieldName(field)
-		fieldValue := formatFieldValue(value)
+		fieldValue := formatFieldValueWithName(value, field.Name)
 
 		table.Append([]string{fieldName, fieldValue})
 	}
@@ -243,7 +243,7 @@ func getTableRow(v reflect.Value, keys []string) []string {
 	for _, key := range keys {
 		field := v.FieldByName(key)
 		if field.IsValid() {
-			row = append(row, formatFieldValue(field))
+			row = append(row, formatFieldValueWithName(field, key))
 		} else {
 			row = append(row, "")
 		}
@@ -266,8 +266,20 @@ func getFieldName(field reflect.StructField) string {
 	return toSnakeCase(field.Name)
 }
 
-// formatFieldValue formats a field value for display
-func formatFieldValue(v reflect.Value) string {
+// isTimestampField checks if a field name indicates a timestamp field
+func isTimestampField(fieldName string) bool {
+	name := strings.ToLower(fieldName)
+	timestampSuffixes := []string{"at", "time", "date", "created", "updated", "expired", "expires", "since", "until"}
+	for _, suffix := range timestampSuffixes {
+		if strings.HasSuffix(name, suffix) || strings.Contains(name, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// formatFieldValueWithName formats a field value for display using the field name to detect timestamps
+func formatFieldValueWithName(v reflect.Value, fieldName string) string {
 	if !v.IsValid() {
 		return ""
 	}
@@ -284,8 +296,8 @@ func formatFieldValue(v reflect.Value) string {
 	case reflect.Bool:
 		return fmt.Sprintf("%v", v.Bool())
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		// Check if it's a timestamp (Unix time)
-		if v.Int() > 1000000000 && v.Int() < 2000000000 {
+		// Check if field name indicates it's a timestamp
+		if isTimestampField(fieldName) && v.Int() > 0 {
 			t := time.Unix(v.Int(), 0)
 			return t.Format("2006-01-02 15:04:05")
 		}
@@ -314,6 +326,11 @@ func formatFieldValue(v reflect.Value) string {
 	default:
 		return fmt.Sprintf("%v", v.Interface())
 	}
+}
+
+// formatFieldValue formats a field value for display (legacy, without field name context)
+func formatFieldValue(v reflect.Value) string {
+	return formatFieldValueWithName(v, "")
 }
 
 // toSnakeCase converts a CamelCase string to snake_case

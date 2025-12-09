@@ -188,15 +188,16 @@ func ConfirmAction(message string) bool {
 	return response == "y" || response == "yes"
 }
 
-// TruncateString truncates a string to the specified length
+// TruncateString truncates a string to the specified rune length
 func TruncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
+	runes := []rune(s)
+	if len(runes) <= maxLen {
 		return s
 	}
 	if maxLen <= 3 {
-		return s[:maxLen]
+		return string(runes[:maxLen])
 	}
-	return s[:maxLen-3] + "..."
+	return string(runes[:maxLen-3]) + "..."
 }
 
 // ValidateAmount validates an amount
