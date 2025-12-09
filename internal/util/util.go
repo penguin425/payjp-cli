@@ -157,17 +157,11 @@ func StringPtr(s string) *string {
 
 // IntPtr returns a pointer to an int
 func IntPtr(i int) *int {
-	if i == 0 {
-		return nil
-	}
 	return &i
 }
 
 // Int64Ptr returns a pointer to an int64
 func Int64Ptr(i int64) *int64 {
-	if i == 0 {
-		return nil
-	}
 	return &i
 }
 
