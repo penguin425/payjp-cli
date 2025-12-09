@@ -316,30 +316,3 @@ func init() {
 	chargesRefundCmd.Flags().String("refund-reason", "", "Reason for refund")
 }
 
-func chargeToOutput(charge *payjp.ChargeResponse) map[string]interface{} {
-	return map[string]interface{}{
-		"id":              charge.ID,
-		"amount":          charge.Amount,
-		"currency":        charge.Currency,
-		"paid":            charge.Paid,
-		"captured":        charge.Captured,
-		"refunded":        charge.Refunded,
-		"amount_refunded": charge.AmountRefunded,
-		"customer":        charge.Customer,
-		"description":     charge.Description,
-		"created":         util.FormatTimestamp(int64(charge.CreatedAt.Unix())),
-	}
-}
-
-func chargeListToOutput(charges []*payjp.ChargeResponse) []map[string]interface{} {
-	result := make([]map[string]interface{}, len(charges))
-	for i, charge := range charges {
-		result[i] = chargeToOutput(charge)
-	}
-	return result
-}
-
-// Helper for error output
-func printChargeError(err error) {
-	fmt.Printf("Error: %v\n", err)
-}
