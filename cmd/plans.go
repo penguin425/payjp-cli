@@ -181,6 +181,7 @@ Example:
 		}
 
 		if quiet {
+			fmt.Println(planID)
 			return nil
 		}
 
